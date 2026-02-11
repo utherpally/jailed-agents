@@ -75,6 +75,7 @@
               unzip
               gnutar
               diffutils
+              libnotify
             ];
             optionals = pkgs.lib.optionals;
           in
