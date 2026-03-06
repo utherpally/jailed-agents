@@ -1,7 +1,7 @@
 {
   description = "Run LLM agent in sandbox environment";
   inputs = {
-    jail-nix.url = "sourcehut:~alexdavid/jail.nix";
+    jail-nix.url = "sourcehut:~alexdavid/jail.nix?ref=c141cf8cc68617625b4a28a7d8ce0a35904815d5";
     llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
@@ -85,5 +85,7 @@
             ++ (permissions combinators)
           );
       };
+      # Re-export llm agents
+      packages = llm-agents.packages;
     };
 }
