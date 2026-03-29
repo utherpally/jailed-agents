@@ -26,24 +26,47 @@
           {
             pkgs,
             extraPkgs ? [ ],
+            permissions ? [ ],
           }:
           self.lib.mkJailedAgent {
             inherit pkgs;
             name = "jailed-claude";
             agent = agents: agents.claude-code;
             permissions =
-              combinators: with combinators; [
-                (readwrite (noescape "~/.claude"))
-                (readwrite (noescape "~/.claude.json"))
-                (add-pkg-deps extraPkgs)
-              ];
+              permissions
+              ++ (
+                combinators: with combinators; [
+                  (readwrite (noescape "~/.claude"))
+                  (readwrite (noescape "~/.claude.json"))
+                  (add-pkg-deps extraPkgs)
+                ]
+              );
+          };
+        mkJailedOpenCode =
+          {
+            pkgs,
+            extraPkgs ? [ ],
+            permissions ? [ ],
+          }:
+          self.lib.mkJailedAgent {
+            inherit pkgs;
+            name = "jailed-opencode";
+            agent = agents: agents.opencode;
+            permissions =
+              permissions
+              ++ (
+                combinators: with combinators; [
+                  (readwrite (noescape "~/.config/opencode"))
+                  (add-pkg-deps extraPkgs)
+                ]
+              );
           };
         mkJailedAgent =
           {
             name,
             agent,
             pkgs,
-            permissions ? (combinators: [ ]),
+            permissions ? [ ],
             defaultOption ? true,
             defaultPkg ? true,
           }:
@@ -52,6 +75,8 @@
             combinators = jail.combinators;
             agents = llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
             jail-agent = if (builtins.typeOf agent) == "lambda" then agent agents else agent;
+            jail-permissions =
+              if (builtins.typeOf permissions == "lambda") then permissions else permissions combinators;
 
             defaultOptions = with combinators; [
               network
@@ -82,7 +107,7 @@
           jail name jail-agent (
             (optionals defaultOption defaultOptions)
             ++ (optionals defaultPkg [ (combinators.add-pkg-deps defaultPkgs) ])
-            ++ (permissions combinators)
+            ++ jail-permissions
           );
       };
       # Re-export llm agents
