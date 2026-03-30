@@ -76,7 +76,7 @@
             agents = llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
             jail-agent = if (builtins.typeOf agent) == "lambda" then agent agents else agent;
             jail-permissions =
-              if (builtins.typeOf permissions == "lambda") then permissions else permissions combinators;
+              if (builtins.typeOf permissions == "lambda") then permissions combinators else permissions;
 
             defaultOptions = with combinators; [
               network
