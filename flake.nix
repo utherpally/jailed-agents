@@ -33,14 +33,14 @@
             name = "jailed-claude";
             agent = agents: agents.claude-code;
             permissions =
-              permissions
-              ++ (
-                combinators: with combinators; [
-                  (readwrite (noescape "~/.claude"))
-                  (readwrite (noescape "~/.claude.json"))
-                  (add-pkg-deps extraPkgs)
-                ]
-              );
+              combinators:
+              with combinators;
+              [
+                (readwrite (noescape "~/.claude"))
+                (readwrite (noescape "~/.claude.json"))
+                (add-pkg-deps extraPkgs)
+              ]
+              ++ (pkgs.lib.toFunction permissions combinators);
           };
         mkJailedOpenCode =
           {
@@ -53,13 +53,13 @@
             name = "jailed-opencode";
             agent = agents: agents.opencode;
             permissions =
-              permissions
-              ++ (
-                combinators: with combinators; [
-                  (readwrite (noescape "~/.config/opencode"))
-                  (add-pkg-deps extraPkgs)
-                ]
-              );
+              combinators:
+              with combinators;
+              [
+                (readwrite (noescape "~/.config/opencode"))
+                (add-pkg-deps extraPkgs)
+              ]
+              ++ (pkgs.lib.toFunction permissions combinators);
           };
         mkJailedAgent =
           {
@@ -74,9 +74,8 @@
             jail = jail-nix.lib.init pkgs;
             combinators = jail.combinators;
             agents = llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
-            jail-agent = if (builtins.typeOf agent) == "lambda" then agent agents else agent;
-            jail-permissions =
-              if (builtins.typeOf permissions == "lambda") then permissions combinators else permissions;
+            jail-agent = pkgs.lib.toFunction agent agents;
+            jail-permissions = pkgs.lib.toFunction permissions combinators;
 
             defaultOptions = with combinators; [
               network
