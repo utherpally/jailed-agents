@@ -71,11 +71,12 @@
             defaultPkg ? true,
           }:
           let
+            inherit (pkgs.lib) toFunction optionals;
             jail = jail-nix.lib.init pkgs;
             combinators = jail.combinators;
-            agents = llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
-            jail-agent = pkgs.lib.toFunction agent agents;
-            jail-permissions = pkgs.lib.toFunction permissions combinators;
+            agents = self.packages.${pkgs.stdenv.hostPlatform.system};
+            jail-agent = toFunction agent agents;
+            jail-permissions = toFunction permissions combinators;
 
             defaultOptions = with combinators; [
               network
@@ -101,7 +102,6 @@
               diffutils
               libnotify
             ];
-            optionals = pkgs.lib.optionals;
           in
           jail name jail-agent (
             (optionals defaultOption defaultOptions)
