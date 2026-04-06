@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -19,14 +18,10 @@ jobs:
       - name: Update flake inputs
         run: nix flake update
 
-      - name: Create PR
-        uses: peter-evans/create-pull-request@v7
-        with:
-          commit-message: "flake: update inputs"
-          title: "flake: update inputs"
-          body: |
-            Automated flake input update.
-
-            Run `nix flake lock --update-input <input>` to update individual inputs.
-          branch: automation/update-flake-inputs
-          delete-branch: true
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add flake.lock
+          git diff --cached --quiet || git commit -m "flake: update inputs"
+          git push
