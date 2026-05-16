@@ -128,6 +128,9 @@
             ++ jail-permissions
           );
       };
+      overlays.default = final: _prev: {
+        llm-agents = self.packages.${final.stdenv.hostPlatform.system} or { };
+      };
       # Re-export llm agents
       packages = llm-agents.packages // {
         x86_64-linux = llm-agents.packages.x86_64-linux // {
